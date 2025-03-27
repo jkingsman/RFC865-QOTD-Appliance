@@ -1,39 +1,30 @@
 #!/usr/bin/env bash
 
-# ./build_and_push.sh [version]
+# ./build.sh [version]
 
-IMAGE_NAME="jkingsman/qotd-appliance"
-DEFAULT_TAG="latest"
-VERSION_TAG=""
-
-if [ $# -eq 1 ]; then
-    VERSION_TAG=$1
-    echo "Building with tags: ${DEFAULT_TAG} and ${VERSION_TAG}"
-else
-    echo "No version specified. Building with tag: ${DEFAULT_TAG} only"
+if [ $# -eq 0 ]; then
+  echo "Error: Version argument is required"
+  echo "Usage: $0 <version>"
+  echo "Example: $0 1.0.0"
+  exit 1
 fi
 
-echo "Building Docker image: ${IMAGE_NAME}:${DEFAULT_TAG}"
-docker build -t ${IMAGE_NAME}:${DEFAULT_TAG} .
+# Set the version from command line argument
+VERSION="$1"
 
-if [ $? -eq 0 ]; then
-    echo "Docker image built successfully."
-else
-    echo "Docker image build failed. Exiting."
-    exit 1
-fi
+# Build both images
+echo "Building qotd_8ball image..."
+docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --target qotd_8ball -t jkingsman/qotd-appliance:latest -t jkingsman/qotd-appliance:8ball-${VERSION} -t jkingsman/qotd-appliance:8ball-latest .
 
-if [ -n "${VERSION_TAG}" ]; then
-    echo "Tagging image as: ${IMAGE_NAME}:${VERSION_TAG}"
-    docker tag ${IMAGE_NAME}:${DEFAULT_TAG} ${IMAGE_NAME}:${VERSION_TAG}
-fi
+echo "Building qotd_fortune_cowsay image..."
+docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64 --target qotd_fortune_cowsay -t jkingsman/qotd-appliance:fortune-cowsay-${VERSION} -t jkingsman/qotd-appliance:fortune-cowsay-latest .
 
-echo "Pushing image to Docker Hub: ${IMAGE_NAME}:${DEFAULT_TAG}"
-docker push ${IMAGE_NAME}:${DEFAULT_TAG}
+# Push all tags to Docker Hub
+echo "Pushing all images to Docker Hub..."
+docker push jkingsman/qotd-appliance:latest
+docker push jkingsman/qotd-appliance:8ball-${VERSION}
+docker push jkingsman/qotd-appliance:8ball-latest
+docker push jkingsman/qotd-appliance:fortune-cowsay-${VERSION}
+docker push jkingsman/qotd-appliance:fortune-cowsay-latest
 
-if [ -n "${VERSION_TAG}" ]; then
-    echo "Pushing image to Docker Hub: ${IMAGE_NAME}:${VERSION_TAG}"
-    docker push ${IMAGE_NAME}:${VERSION_TAG}
-fi
-
-echo "Process completed."
+echo "All images built and pushed successfully!"

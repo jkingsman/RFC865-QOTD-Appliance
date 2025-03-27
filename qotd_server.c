@@ -90,6 +90,7 @@ char *generate_cowsay(char *buffer, size_t buffer_size)
 
 int main()
 {
+  setbuf(stdout, NULL);
   char quote_buffer[MAX_BUFFER_SIZE];
   struct sockaddr_in tcp_addr, udp_addr;
   int opt = 1;
@@ -193,7 +194,7 @@ int main()
         inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, sizeof(client_ip));
         printf("[%ld] TCP connection from %s:%d\n", time(NULL), client_ip, ntohs(client_addr.sin_port));
 
-        // Generate and send quote
+        // send quote
         generate_cowsay(quote_buffer, sizeof(quote_buffer));
         send(client_fd, quote_buffer, strlen(quote_buffer), 0);
         close(client_fd);
