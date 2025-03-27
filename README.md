@@ -1,4 +1,4 @@
-# RFC865 Quote of the Day Protocol Server Appliance
+# RFC865 QotD/Cookie Server for Docker
 
 Run a [Quote of the Day Protocol](https://datatracker.ietf.org/doc/html/rfc865) server, with a Dockerfile to set it up containerized. Now you can finally use DHCP option 8!
 
@@ -11,7 +11,7 @@ One target is for a simple 8ball-style fortune, and the other is a `fortune | co
 Needs sudo to bind to privileged port.
 
 ```bash
-sudo docker run -d -p 17:17/tcp -p 17:17/udp jkingsman/qotd-appliance
+sudo docker run -p 17:17/tcp -p 17:17/udp jkingsman/qotd-appliance:latest
 ```
 
 See https://hub.docker.com/repository/docker/jkingsman/qotd-appliance/general.
